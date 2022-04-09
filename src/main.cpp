@@ -4,9 +4,29 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 #include <GL/gl.h>
+#include <ImGuiFileDialog.h>
+
+using namespace std;
+
+string GetStdoutFromCommand(string cmd) {
+    string data;
+    FILE * stream;
+    const int max_buffer = 256;
+    char buffer[max_buffer];
+    cmd.append(" 2>&1");
+
+    stream = popen(cmd.c_str(), "r");
+
+    if (stream) {
+        while (!feof(stream))
+            if (fgets(buffer, max_buffer, stream) != nullptr) data.append(buffer);
+        pclose(stream);
+    }
+    return data;
+}
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    cout << "Hello, World!" << std::endl;
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
@@ -46,6 +66,7 @@ int main() {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     bool running = true;
+    bool injected = false;
     while (running) {
         SDL_Event event;
 
@@ -69,7 +90,20 @@ int main() {
             ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
             ImGui::Begin("Phantom Injector", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-            ImGui::Text("Hello, World!");
+            if (ImGui::Button("Open library"))
+                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".so", ".");
+
+            if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey", 0, ImVec2(600, 350), ImVec2(800, 600))) {
+                if (ImGuiFileDialog::Instance()->IsOk()) {
+                    string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                    injected = true;
+                }
+
+                ImGuiFileDialog::Instance()->Close();
+            }
+
+            if (injected)
+                ImGui::Text("Successfully injected library");
 
             ImGui::End();
         }
