@@ -26,7 +26,6 @@ string getStdoutFromCommand(string cmd) {
 }
 
 int main() {
-    cout << "Hello, World!" << std::endl;
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
@@ -123,7 +122,8 @@ int main() {
 
             if (!pidStr.empty() && pidStr != "Not Found" && !fileNameString.empty()) {
                 if (ImGui::Button("Inject")) {
-                    cout << "Injecting..." << endl;
+                    cout << "Injecting into process " << pidStr << endl;
+
                     injected = true;
                 }
             }
