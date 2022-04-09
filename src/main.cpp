@@ -8,7 +8,7 @@
 
 using namespace std;
 
-string GetStdoutFromCommand(string cmd) {
+string getStdoutFromCommand(string cmd) {
     string data;
     FILE * stream;
     const int max_buffer = 256;
@@ -67,6 +67,11 @@ int main() {
 
     bool running = true;
     bool injected = false;
+    bool searchedForMC = false;
+
+    string fileNameString;
+    string pidStr;
+
     while (running) {
         SDL_Event event;
 
@@ -95,11 +100,32 @@ int main() {
 
             if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey", 0, ImVec2(600, 350), ImVec2(800, 600))) {
                 if (ImGuiFileDialog::Instance()->IsOk()) {
-                    string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-                    injected = true;
+                    fileNameString = ImGuiFileDialog::Instance()->GetFilePathName();
                 }
 
                 ImGuiFileDialog::Instance()->Close();
+            }
+
+            if (!fileNameString.empty())
+                ImGui::Text("Selected Library: %s", fileNameString.c_str());
+
+            if (ImGui::Button("Find Minecraft")) {
+                searchedForMC = true;
+                string mcPid = getStdoutFromCommand("ps ax | grep minecraft | grep java | grep -v grep | awk '{print $1}'");
+                if (mcPid.empty())
+                    pidStr = "Not Found";
+                else
+                    pidStr = mcPid;
+            }
+
+            if (searchedForMC)
+                ImGui::Text("Minecraft PID: %s", pidStr.c_str());
+
+            if (!pidStr.empty() && pidStr != "Not Found" && !fileNameString.empty()) {
+                if (ImGui::Button("Inject")) {
+                    cout << "Injecting..." << endl;
+                    injected = true;
+                }
             }
 
             if (injected)
