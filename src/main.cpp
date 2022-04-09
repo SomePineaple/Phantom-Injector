@@ -5,6 +5,7 @@
 #include <imgui_impl_opengl3.h>
 #include <GL/gl.h>
 #include <ImGuiFileDialog.h>
+#include <injector.h>
 
 using namespace std;
 
@@ -70,6 +71,7 @@ int main() {
 
     string fileNameString;
     string pidStr;
+    string injectorErr;
 
     while (running) {
         SDL_Event event;
@@ -123,13 +125,22 @@ int main() {
             if (!pidStr.empty() && pidStr != "Not Found" && !fileNameString.empty()) {
                 if (ImGui::Button("Inject")) {
                     cout << "Injecting into process " << pidStr << endl;
-
+                    injector_t * injector;
+                    injector_attach(&injector, stoi(pidStr));
+                    if (injector_inject(injector, fileNameString.c_str(), nullptr) != 0) {
+                        injectorErr = injector_error();
+                        cerr << "ERROR: " << injectorErr << endl;
+                    }
+                    injector_detach(injector);
                     injected = true;
                 }
             }
 
             if (injected)
                 ImGui::Text("Successfully injected library");
+
+            if (!injectorErr.empty())
+                ImGui::Text("Error injecting: %s", injectorErr.c_str());
 
             ImGui::End();
         }
