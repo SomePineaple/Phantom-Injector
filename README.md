@@ -5,5 +5,5 @@ can download the AppImage from the releases tab. If you build from source, make 
 you won't be able to inject.
 
 ## Licencing
-Files in src/imgui and src/ImGuiFileDialog are licenced under the MIT licence, while files under src/injector are
-licenced under the LGPL v2 licence or later.
+Files under src/injector are licenced under the LGPL v2 licence or later. Everything else is licenced under the MIT
+licence.
