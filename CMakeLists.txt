@@ -3,6 +3,8 @@ project(Phantom_Injector)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS_RELEASE -O3)
+
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 
